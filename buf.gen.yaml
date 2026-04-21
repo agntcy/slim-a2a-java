@@ -1,0 +1,24 @@
+# Copyright AGNTCY Contributors (https://github.com/agntcy)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Run: task generate
+# (requires protoc-gen-slimrpc-java in PATH)
+
+version: v2
+
+inputs:
+  - git_repo: https://github.com/a2aproject/A2A.git
+    ref: v1.0.0
+    subdir: specification
+
+managed:
+  enabled: true
+  override:
+    - file_option: java_package
+      path: a2a.proto
+      value: org.a2aproject.sdk.grpc
+
+plugins:
+  # SlimRPC stubs only; proto types come from a2a-java-sdk-spec-grpc on the classpath.
+  - local: protoc-gen-slimrpc-java
+    out: slim-a2a/generated/slimrpc

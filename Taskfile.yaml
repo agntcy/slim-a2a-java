@@ -1,0 +1,36 @@
+# Copyright AGNTCY Contributors (https://github.com/agntcy)
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3"
+
+tasks:
+  generate:
+    desc: Generate SlimRPC stubs from A2A proto
+    cmds:
+      - buf generate
+
+  build:
+    desc: Build all modules
+    cmds:
+      - mvn clean install -DskipTests
+
+  test:
+    desc: Run tests
+    cmds:
+      - mvn test
+
+  echo-server:
+    desc: Run echo agent server
+    cmds:
+      - >
+        mvn -pl examples/echo-agent exec:java
+        -Dexec.mainClass=io.agntcy.slim.a2a.examples.echo.ServerMain
+        {{.CLI_ARGS}}
+
+  echo-client:
+    desc: Run echo agent client
+    cmds:
+      - >
+        mvn -pl examples/echo-agent exec:java
+        -Dexec.mainClass=io.agntcy.slim.a2a.examples.echo.ClientMain
+        {{.CLI_ARGS}}
