@@ -32,8 +32,8 @@ public final class ServerMain {
 
     static final String ORG = "agntcy";
     static final String NS = "slim-a2a";
-    static final String SHARED_SECRET = "demo-shared-secret";
-    static final String DEFAULT_SERVER_ADDR = "localhost:9090";
+    static final String SHARED_SECRET = "demo-shared-secret-min-32-chars!!";
+    static final String DEFAULT_SERVER_ADDR = "http://localhost:46357";
 
     public static void main(String[] args) throws Exception {
         String serverAddr = DEFAULT_SERVER_ADDR;
@@ -52,6 +52,9 @@ public final class ServerMain {
                 .name("Echo Agent")
                 .description("A simple agent that echoes the user's input")
                 .version("1.0.0")
+                .defaultInputModes(List.of("text"))
+                .defaultOutputModes(List.of("text"))
+                .supportedInterfaces(List.of())
                 .capabilities(AgentCapabilities.builder()
                         .extendedAgentCard(true)
                         .build())
@@ -60,6 +63,7 @@ public final class ServerMain {
                                 .id("echo")
                                 .name("Echo")
                                 .description("Echoes the input text back")
+                                .tags(List.of("echo"))
                                 .build()
                 ))
                 .build();

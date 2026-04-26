@@ -21,16 +21,22 @@ tasks:
 
   echo-server:
     desc: Run echo agent server
+    deps:
+      - build
+    dir: examples/echo-agent
     cmds:
       - >
-        mvn -pl examples/echo-agent exec:java
+        mvn clean compile exec:java
         -Dexec.mainClass=io.agntcy.slim.a2a.examples.echo.ServerMain
         {{.CLI_ARGS}}
 
   echo-client:
     desc: Run echo agent client
+    deps:
+      - build
+    dir: examples/echo-agent
     cmds:
       - >
-        mvn -pl examples/echo-agent exec:java
+        mvn clean compile exec:java
         -Dexec.mainClass=io.agntcy.slim.a2a.examples.echo.ClientMain
         {{.CLI_ARGS}}

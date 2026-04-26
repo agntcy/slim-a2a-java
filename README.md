@@ -57,8 +57,6 @@ mvn install -DskipTests
 ## Building
 
 ```bash
-mvn clean install
-# or
 task build
 ```
 
@@ -88,20 +86,20 @@ slimctl up
 
 ### 2. Start the server
 
+In a second terminal:
+
 ```bash
 task echo-server
-# or
-mvn -pl examples/echo-agent exec:java \
-  -Dexec.mainClass=io.agntcy.slim.a2a.examples.echo.ServerMain
 ```
+
+Wait for `SLIM_A2A_SERVER_READY` to appear.
 
 ### 3. Run the client
 
+In a third terminal:
+
 ```bash
 task echo-client
-# or
-mvn -pl examples/echo-agent exec:java \
-  -Dexec.mainClass=io.agntcy.slim.a2a.examples.echo.ClientMain
 ```
 
 ## Architecture

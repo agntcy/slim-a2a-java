@@ -53,20 +53,6 @@
                         </systemProperty>
                     </systemProperties>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>server</id>
-                        <configuration>
-                            <mainClass>io.agntcy.slim.a2a.examples.echo.ServerMain</mainClass>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>client</id>
-                        <configuration>
-                            <mainClass>io.agntcy.slim.a2a.examples.echo.ClientMain</mainClass>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

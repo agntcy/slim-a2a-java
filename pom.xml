@@ -32,7 +32,7 @@
 
         <slim.bindings.version>1.2.0</slim.bindings.version>
         <a2a.java.sdk.version>1.0.0.Beta2-SNAPSHOT</a2a.java.sdk.version>
-        <protobuf.version>4.29.3</protobuf.version>
+        <protobuf.version>4.33.1</protobuf.version>
         <jna.version>5.14.0</jna.version>
     </properties>
 
