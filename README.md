@@ -81,7 +81,7 @@ cargo build --release -p agntcy-protoc-slimrpc-plugin
 ### 1. Start a SLIM gateway
 
 ```bash
-slimctl up
+slimctl slim start --endpoint 127.0.0.1:46357
 ```
 
 ### 2. Start the server
