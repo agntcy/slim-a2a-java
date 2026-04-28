@@ -1,0 +1,35 @@
+# Copyright AGNTCY Contributors (https://github.com/agntcy)
+# SPDX-License-Identifier: Apache-2.0
+---
+name: Setup Rust Environment
+description: Setup Rust toolchain for building protoc plugins
+inputs:
+  toolchain:
+    description: "Rust toolchain to use"
+    required: false
+    default: "stable"
+  cache-enabled:
+    description: "Enable rust cache"
+    required: false
+    default: "true"
+  cache-directories:
+    description: "Additional cache directories (whitespace-separated)"
+    required: false
+    default: |
+      ~/.cargo/bin
+      ~/.cargo/.crates.toml
+      ~/.cargo/.crates2.json
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Rust
+      id: setup-rust
+      uses: actions-rust-lang/setup-rust-toolchain@150fca883cd4034361b621bd4e6a9d34e5143606 # v1.15.4
+      with:
+        rustflags: ""
+        cache: ${{ inputs.cache-enabled }}
+        cache-on-failure: false
+        cache-shared-key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+        cache-all-crates: true
+        cache-bin: false
+        cache-directories: ${{ inputs.cache-directories }}

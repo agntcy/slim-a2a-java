@@ -1,0 +1,91 @@
+# Copyright AGNTCY Contributors (https://github.com/agntcy)
+# SPDX-License-Identifier: Apache-2.0
+
+---
+
+name: Setup Task with Cache
+description: Setup Task (go-task/task) with GitHub Actions caching to prevent rate limiting
+inputs:
+  version:
+    description: 'Task version to install (e.g., "3.39.2", "latest")'
+    required: false
+    default: 'latest'
+  cache-enabled:
+    description: 'Enable caching of the Task binary'
+    required: false
+    default: 'true'
+  github-token:
+    description: 'GitHub token for API requests'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  cache-hit:
+    description: 'Whether the Task binary was retrieved from cache'
+    value: ${{ steps.cache.outputs.cache-hit }}
+  version:
+    description: 'The actual version of Task that was installed'
+    value: ${{ steps.get-version.outputs.version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Determine Task version
+      id: get-version
+      shell: bash
+      run: |
+        if [ "${{ inputs.version }}" == "latest" ]; then
+          VERSION=$(curl -s -H "Authorization: Bearer ${{ inputs.github-token }}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/go-task/task/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+          if [[ -z "$VERSION" ]]; then
+            VERSION="v3.39.2"
+          fi
+        else
+          VERSION="${{ inputs.version }}"
+          if [[ ! "$VERSION" =~ ^v ]]; then
+            VERSION="v$VERSION"
+          fi
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Determine platform
+      id: platform
+      shell: bash
+      run: |
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+        case $ARCH in
+          x86_64) ARCH="amd64" ;;
+          aarch64|arm64) ARCH="arm64" ;;
+          armv7l) ARCH="arm" ;;
+        esac
+        case $OS in
+          darwin) OS="darwin" ;;
+          linux) OS="linux" ;;
+          mingw*|msys*|cygwin*) OS="windows" ;;
+        esac
+        [[ $OS == "windows" ]] && BINARY_NAME="task.exe" || BINARY_NAME="task"
+        echo "os=$OS" >> $GITHUB_OUTPUT
+        echo "arch=$ARCH" >> $GITHUB_OUTPUT
+        echo "binary_name=$BINARY_NAME" >> $GITHUB_OUTPUT
+
+    - name: Setup GitHub PATH
+      shell: bash
+      run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Setup cache for Task binary
+      id: cache
+      if: inputs.cache-enabled == 'true'
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/bin/${{ steps.platform.outputs.binary_name }}
+        key: task-${{ steps.get-version.outputs.version }}-${{ steps.platform.outputs.os }}-${{ steps.platform.outputs.arch }}
+
+    - name: Download and install Task
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -b ~/.local/bin -d ${{ steps.get-version.outputs.version }}
+
+    - name: Verify installation
+      shell: bash
+      run: task --version
