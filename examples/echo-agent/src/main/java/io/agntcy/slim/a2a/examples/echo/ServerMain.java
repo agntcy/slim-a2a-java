@@ -30,10 +30,15 @@ import org.a2aproject.sdk.spec.StreamingEventKind;
  */
 public final class ServerMain {
 
-    static final String ORG = "agntcy";
-    static final String NS = "slim-a2a";
-    static final String SHARED_SECRET = "demo-shared-secret-min-32-chars!!";
-    static final String DEFAULT_SERVER_ADDR = "http://localhost:46357";
+    static String ORG = envOr("SLIM_ORG", "agntcy");
+    static String NS = envOr("SLIM_NS", "slim-a2a");
+    static String SHARED_SECRET = envOr("SLIM_SHARED_SECRET", "demo-shared-secret-min-32-chars!!");
+    static final String DEFAULT_SERVER_ADDR = envOr("SLIM_SERVER", "http://localhost:46357");
+
+    private static String envOr(String name, String fallback) {
+        String value = System.getenv(name);
+        return (value == null || value.isEmpty()) ? fallback : value;
+    }
 
     public static void main(String[] args) throws Exception {
         String serverAddr = DEFAULT_SERVER_ADDR;
@@ -43,6 +48,12 @@ public final class ServerMain {
                 serverAddr = args[i + 1];
             } else if ("--instance".equals(args[i]) && i + 1 < args.length) {
                 instance = args[i + 1];
+            } else if ("--secret".equals(args[i]) && i + 1 < args.length) {
+                SHARED_SECRET = args[i + 1];
+            } else if ("--org".equals(args[i]) && i + 1 < args.length) {
+                ORG = args[i + 1];
+            } else if ("--ns".equals(args[i]) && i + 1 < args.length) {
+                NS = args[i + 1];
             }
         }
 
@@ -74,7 +85,7 @@ public final class ServerMain {
         var queueManager = new InMemoryQueueManager(taskStore, eventBus);
         var pushConfigStore = new InMemoryPushNotificationConfigStore();
 
-        PushNotificationSender noOpPush = event -> {};
+        PushNotificationSender noOpPush = (event, task) -> {};
 
         var eventProcessor = new MainEventBusProcessor(eventBus, taskStore, noOpPush, queueManager);
         var processorThread = new Thread(eventProcessor, "event-bus-processor");

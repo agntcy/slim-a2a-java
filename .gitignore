@@ -4,6 +4,7 @@ target/
 *.war
 *.ear
 *.class
+dependency-reduced-pom.xml
 
 # IDE
 .idea/

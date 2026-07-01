@@ -3,6 +3,7 @@
 
 package io.agntcy.slim.a2a.examples.echo;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,9 +26,18 @@ public final class ClientMain {
 
     public static void main(String[] args) throws Exception {
         String serverAddr = ServerMain.DEFAULT_SERVER_ADDR;
+        String remoteInstance = "server";
         for (int i = 0; i < args.length; i++) {
             if ("--server".equals(args[i]) && i + 1 < args.length) {
                 serverAddr = args[i + 1];
+            } else if ("--secret".equals(args[i]) && i + 1 < args.length) {
+                ServerMain.SHARED_SECRET = args[i + 1];
+            } else if ("--org".equals(args[i]) && i + 1 < args.length) {
+                ServerMain.ORG = args[i + 1];
+            } else if ("--ns".equals(args[i]) && i + 1 < args.length) {
+                ServerMain.NS = args[i + 1];
+            } else if ("--remote-instance".equals(args[i]) && i + 1 < args.length) {
+                remoteInstance = args[i + 1];
             }
         }
 
@@ -35,39 +45,41 @@ public final class ClientMain {
 
         Channel channel = SlimHelper.createChannel(
                 "client", ServerMain.ORG, ServerMain.NS,
-                "server", ServerMain.SHARED_SECRET, serverAddr);
+                remoteInstance, ServerMain.SHARED_SECRET, serverAddr);
 
-        var client = new SlimA2AClient(channel);
+        try {
+            var client = new SlimA2AClient(channel);
 
-        String contextId = UUID.randomUUID().toString();
-        Message message = Message.builder()
-                .role(Message.Role.ROLE_USER)
-                .messageId(UUID.randomUUID().toString())
-                .contextId(contextId)
-                .parts(List.of(new TextPart("Hello from Java A2A client!", null)))
-                .build();
+            String contextId = UUID.randomUUID().toString();
+            Message message = Message.builder()
+                    .role(Message.Role.ROLE_USER)
+                    .messageId(UUID.randomUUID().toString())
+                    .contextId(contextId)
+                    .parts(List.of(new TextPart("Hello from Java A2A client!", null)))
+                    .build();
 
-        MessageSendParams params = MessageSendParams.builder()
-                .message(message)
-                .build();
+            MessageSendParams params = MessageSendParams.builder()
+                    .message(message)
+                    .build();
 
-        System.out.println("Sending message to echo agent...");
-        EventKind result = client.sendMessage(params);
+            System.out.println("Sending message to echo agent...");
+            EventKind result = client.sendMessage(params);
 
-        if (result instanceof Task task) {
-            System.out.println("Got Task: id=" + task.id()
-                    + " state=" + task.status().state());
-        } else if (result instanceof Message msg) {
-            System.out.println("Got Message: " + msg.parts());
-        } else {
-            System.out.println("Got: " + result);
+            if (result instanceof Task task) {
+                System.out.println("Got Task: id=" + task.id()
+                        + " state=" + task.status().state());
+            } else if (result instanceof Message msg) {
+                System.out.println("Got Message: " + msg.parts());
+            } else {
+                System.out.println("Got: " + result);
+            }
+
+            // getExtendedAgentCard() is intentionally not called here: it hangs and, worse,
+            // leaves the server's session/participant capacity stuck for every other client
+            // until restarted. Re-enable once that server-side bug is fixed.
+            System.out.println("SLIM_A2A_CLIENT_DONE");
+        } finally {
+            channel.close(Duration.ofSeconds(5));
         }
-
-        System.out.println("Fetching agent card...");
-        var agentCard = client.getExtendedAgentCard();
-        System.out.println("Agent: " + agentCard.name()
-                + " - " + agentCard.description());
-
-        System.out.println("SLIM_A2A_CLIENT_DONE");
     }
 }

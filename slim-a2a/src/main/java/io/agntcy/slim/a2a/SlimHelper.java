@@ -16,6 +16,10 @@ import io.agntcy.slim.bindings.SlimBindings;
  */
 public final class SlimHelper {
 
+    static {
+        NativeLibraryLoader.ensureExtracted();
+    }
+
     private SlimHelper() {}
 
     /**
