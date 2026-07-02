@@ -5,6 +5,7 @@ target/
 *.ear
 *.class
 dependency-reduced-pom.xml
+.flattened-pom.xml
 
 # IDE
 .idea/

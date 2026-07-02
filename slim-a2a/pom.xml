@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.agntcy.slim</groupId>
         <artifactId>slim-a2a-java-parent</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>slim-a2a-java</artifactId>
@@ -15,6 +15,27 @@
 
     <name>SLIM A2A Java Library</name>
     <description>A2A protocol adapter for SLIM transport in Java</description>
+    <url>https://github.com/agntcy/slim-a2a-java</url>
+
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>AGNTCY Contributors</name>
+            <url>https://github.com/agntcy</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/agntcy/slim-a2a-java</url>
+        <connection>scm:git:git://github.com/agntcy/slim-a2a-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/agntcy/slim-a2a-java.git</developerConnection>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -59,6 +80,81 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Sources JAR (required by Maven Central) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Javadoc JAR (required by Maven Central) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <source>21</source>
+                    <doclint>none</doclint>
+                    <failOnError>false</failOnError>
+                    <additionalOptions>
+                        <additionalOption>--enable-preview</additionalOption>
+                    </additionalOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- GPG signing for Maven Central (activated when GPG_SIGNING_KEY env var is set) -->
+        <profile>
+            <id>sign</id>
+            <activation>
+                <property>
+                    <name>env.GPG_SIGNING_KEY</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                    <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

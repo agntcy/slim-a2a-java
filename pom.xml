@@ -6,7 +6,7 @@
 
     <groupId>io.agntcy.slim</groupId>
     <artifactId>slim-a2a-java-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <name>SLIM A2A Java</name>
@@ -20,12 +20,26 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <name>AGNTCY Contributors</name>
+            <url>https://github.com/agntcy</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/agntcy/slim-a2a-java</url>
+        <connection>scm:git:git://github.com/agntcy/slim-a2a-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/agntcy/slim-a2a-java.git</developerConnection>
+    </scm>
+
     <modules>
         <module>slim-a2a</module>
         <module>examples/echo-agent</module>
     </modules>
 
     <properties>
+        <revision>0.1.0</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -103,5 +117,26 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <!-- CI-friendly versions: replace ${revision} with the real version in deployed poms -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                        <configuration>
+                            <updatePomFile>true</updatePomFile>
+                            <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

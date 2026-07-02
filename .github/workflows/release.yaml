@@ -1,0 +1,84 @@
+# Copyright AGNTCY Contributors (https://github.com/agntcy)
+# SPDX-License-Identifier: Apache-2.0
+
+---
+name: release
+
+on:
+  push:
+    tags: ['v*']            # v0.1.0 -> io.agntcy.slim:slim-a2a-java:0.1.0
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without leading v"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release-maven-central:
+    name: Release to Maven Central
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Extract version
+        id: v
+        env:
+          REF_NAME: "${{ github.ref_name }}"
+          INPUT_VERSION: "${{ inputs.version }}"
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then VERSION="$INPUT_VERSION"; else VERSION="${REF_NAME#v}"; fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Configure Maven Central credentials
+        env:
+          MVN_TOKEN_NAME: ${{ secrets.MVN_TOKEN_NAME }}
+          MVN_TOKEN_PASSWORD: ${{ secrets.MVN_TOKEN_PASSWORD }}
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'EOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0">
+            <servers><server>
+              <id>central</id>
+              <username>${env.MVN_TOKEN_NAME}</username>
+              <password>${env.MVN_TOKEN_PASSWORD}</password>
+            </server></servers>
+          </settings>
+          EOF
+
+      - name: Import GPG signing key
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: echo "$GPG_SIGNING_KEY" | gpg --batch --yes --import --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE"
+
+      - name: Deploy to Maven Central staging
+        env:
+          MVN_TOKEN_NAME: ${{ secrets.MVN_TOKEN_NAME }}
+          MVN_TOKEN_PASSWORD: ${{ secrets.MVN_TOKEN_PASSWORD }}
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          mvn deploy -Drevision="${{ steps.v.outputs.version }}" -DskipTests \
+            -DaltDeploymentRepository=central::default::https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/
+
+      - name: Transfer staged deployment to Central Portal
+        env:
+          MVN_TOKEN_NAME: ${{ secrets.MVN_TOKEN_NAME }}
+          MVN_TOKEN_PASSWORD: ${{ secrets.MVN_TOKEN_PASSWORD }}
+        run: |
+          AUTH=$(echo -n "$MVN_TOKEN_NAME:$MVN_TOKEN_PASSWORD" | base64 | tr -d '\n')
+          curl -sS -X POST -H "Authorization: Bearer $AUTH" \
+            "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/io.agntcy?publishing_type=automatic"
