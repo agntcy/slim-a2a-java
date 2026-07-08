@@ -28,16 +28,30 @@ final class NativeLibraryLoader {
         if (System.getProperty(OVERRIDE_PROPERTY) != null) {
             return;
         }
+        Path tempDir = Path.of(System.getProperty("java.io.tmpdir"));
+        Path cachedFile = tempDir.resolve("libslim_bindings_1_4_1" + suffix());
+        if (Files.exists(cachedFile)) {
+            try {
+                if (Files.size(cachedFile) > 0) {
+                    System.setProperty(OVERRIDE_PROPERTY, cachedFile.toAbsolutePath().toString());
+                    return;
+                }
+            } catch (IOException ignored) {}
+        }
         String resourcePath = platformDir() + "/" + libraryFileName();
         try (InputStream in = NativeLibraryLoader.class.getClassLoader().getResourceAsStream(resourcePath)) {
             if (in == null) {
                 throw new IllegalStateException(
                         "slim-bindings-java native library not found on classpath: " + resourcePath);
             }
-            Path tempFile = Files.createTempFile("slim_bindings-", suffix());
-            tempFile.toFile().deleteOnExit();
+            Path tempFile = Files.createTempFile(tempDir, "slim_bindings_tmp", suffix());
             Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-            System.setProperty(OVERRIDE_PROPERTY, tempFile.toAbsolutePath().toString());
+            try {
+                Files.move(tempFile, cachedFile, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                cachedFile = tempFile;
+            }
+            System.setProperty(OVERRIDE_PROPERTY, cachedFile.toAbsolutePath().toString());
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to extract slim-bindings-java native library", e);
         }

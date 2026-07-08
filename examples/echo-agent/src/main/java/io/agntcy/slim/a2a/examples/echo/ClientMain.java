@@ -50,29 +50,9 @@ public final class ClientMain {
         try {
             var client = new SlimA2AClient(channel);
 
-            String contextId = UUID.randomUUID().toString();
-            Message message = Message.builder()
-                    .role(Message.Role.ROLE_USER)
-                    .messageId(UUID.randomUUID().toString())
-                    .contextId(contextId)
-                    .parts(List.of(new TextPart("Hello from Java A2A client!", null)))
-                    .build();
-
-            MessageSendParams params = MessageSendParams.builder()
-                    .message(message)
-                    .build();
-
-            System.out.println("Sending message to echo agent...");
-            EventKind result = client.sendMessage(params);
-
-            if (result instanceof Task task) {
-                System.out.println("Got Task: id=" + task.id()
-                        + " state=" + task.status().state());
-            } else if (result instanceof Message msg) {
-                System.out.println("Got Message: " + msg.parts());
-            } else {
-                System.out.println("Got: " + result);
-            }
+            sendTestMessage(client, "Hello from Java A2A client!");
+            sendTestMessage(client, "/shout Hello from Java A2A client!");
+            sendTestMessage(client, "/reverse Hello from Java A2A client!");
 
             // getExtendedAgentCard() is intentionally not called here: it hangs and, worse,
             // leaves the server's session/participant capacity stuck for every other client
@@ -80,6 +60,32 @@ public final class ClientMain {
             System.out.println("SLIM_A2A_CLIENT_DONE");
         } finally {
             channel.close(Duration.ofSeconds(5));
+        }
+    }
+
+    private static void sendTestMessage(SlimA2AClient client, String text) throws Exception {
+        String contextId = UUID.randomUUID().toString();
+        Message message = Message.builder()
+                .role(Message.Role.ROLE_USER)
+                .messageId(UUID.randomUUID().toString())
+                .contextId(contextId)
+                .parts(List.of(new TextPart(text, null)))
+                .build();
+
+        MessageSendParams params = MessageSendParams.builder()
+                .message(message)
+                .build();
+
+        System.out.println("Sending: \"" + text + "\"");
+        EventKind result = client.sendMessage(params);
+
+        if (result instanceof Task task) {
+            System.out.println("Got Task: id=" + task.id()
+                    + " state=" + task.status().state());
+        } else if (result instanceof Message msg) {
+            System.out.println("Got Message: " + msg.parts());
+        } else {
+            System.out.println("Got: " + result);
         }
     }
 }

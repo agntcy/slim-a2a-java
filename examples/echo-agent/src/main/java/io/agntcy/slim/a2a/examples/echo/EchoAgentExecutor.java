@@ -19,7 +19,14 @@ public final class EchoAgentExecutor implements AgentExecutor {
     @Override
     public void execute(RequestContext context, AgentEmitter emitter) throws A2AError {
         String userInput = context.getUserInput();
-        String reply = "Echo: " + userInput;
+        String reply;
+        if (userInput.startsWith("/shout ")) {
+            reply = "Echo (SHOUT): " + userInput.substring(7).toUpperCase();
+        } else if (userInput.startsWith("/reverse ")) {
+            reply = "Echo (Reversed): " + new StringBuilder(userInput.substring(9)).reverse().toString();
+        } else {
+            reply = "Echo: " + userInput;
+        }
         System.out.println("[EchoAgent] request contextId=" + context.getContextId()
                 + " userText=" + userInput);
 

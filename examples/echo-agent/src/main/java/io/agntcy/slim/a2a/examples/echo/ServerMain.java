@@ -92,7 +92,7 @@ public final class ServerMain {
         processorThread.setDaemon(true);
         processorThread.start();
 
-        var executor = Executors.newCachedThreadPool();
+        var executor = Executors.newVirtualThreadPerTaskExecutor();
         var requestHandler = DefaultRequestHandler.create(
                 agentExecutor, taskStore, queueManager, pushConfigStore,
                 eventProcessor, executor, executor);

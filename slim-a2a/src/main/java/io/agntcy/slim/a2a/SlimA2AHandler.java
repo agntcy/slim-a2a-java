@@ -27,6 +27,9 @@ import org.a2aproject.sdk.spec.StreamingEventKind;
  */
 public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer {
 
+    private static final java.util.concurrent.Executor VIRTUAL_THREAD_EXECUTOR =
+            java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
+
     private final RequestHandler requestHandler;
     private final org.a2aproject.sdk.spec.AgentCard agentCard;
 
@@ -50,7 +53,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     @Override
@@ -65,7 +68,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     @Override
@@ -79,7 +82,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     @Override
@@ -93,7 +96,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     @Override
@@ -107,7 +110,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     @Override
@@ -122,7 +125,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     @Override
@@ -136,7 +139,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     @Override
@@ -150,7 +153,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     @Override
@@ -164,7 +167,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     @Override
@@ -184,7 +187,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
             }
-        });
+        }, VIRTUAL_THREAD_EXECUTOR);
     }
 
     private ServerCallContext newCallContext() {
