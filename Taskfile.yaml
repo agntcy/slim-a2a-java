@@ -3,6 +3,11 @@
 
 version: "3"
 
+env:
+  # exec:java runs in Maven's own JVM, and slim-bindings-java is compiled with
+  # preview features (FFM API on Java 21), so the flags have to reach that JVM.
+  MAVEN_OPTS: --enable-preview --enable-native-access=ALL-UNNAMED
+
 tasks:
   generate:
     desc: Generate SlimRPC stubs from A2A proto

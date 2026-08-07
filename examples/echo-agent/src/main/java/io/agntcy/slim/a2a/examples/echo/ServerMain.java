@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 
 import io.agntcy.slim.a2a.SlimA2AHandler;
 import io.agntcy.slim.a2a.SlimHelper;
-import io.agntcy.slim.bindings.Server;
+import io.agntcy.slim.bindings.slimrpc.Server;
 import org.a2aproject.sdk.grpc.A2AServiceSlimrpc;
 import org.a2aproject.sdk.server.events.InMemoryQueueManager;
 import org.a2aproject.sdk.server.events.MainEventBus;
@@ -104,6 +104,6 @@ public final class ServerMain {
 
         System.out.println("Echo agent server starting on SLIM gateway " + serverAddr);
         System.out.println("SLIM_A2A_SERVER_READY");
-        rpcServer.serve();
+        rpcServer.serveBlocking();
     }
 }

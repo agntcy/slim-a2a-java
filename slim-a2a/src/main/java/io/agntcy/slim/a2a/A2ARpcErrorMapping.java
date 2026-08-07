@@ -3,8 +3,8 @@
 
 package io.agntcy.slim.a2a;
 
-import io.agntcy.slim.bindings.RpcCode;
-import io.agntcy.slim.bindings.RpcException;
+import io.agntcy.slim.bindings.slimrpc.RpcCode;
+import io.agntcy.slim.bindings.slimrpc.RpcException;
 import org.a2aproject.sdk.spec.A2AError;
 import org.a2aproject.sdk.spec.InvalidParamsError;
 import org.a2aproject.sdk.spec.InvalidRequestError;

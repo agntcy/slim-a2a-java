@@ -11,23 +11,45 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * slim-bindings-java 1.4.x resolves its native library through the Java Foreign
- * Function &amp; Memory API instead of JNA, so it no longer self-extracts the
+ * slim-bindings-java resolves its native library through the Java Foreign
+ * Function &amp; Memory API instead of JNA, so it does not self-extract the
  * platform-specific binary bundled inside its jar. This extracts the matching
- * binary to a temp file and points
- * {@code uniffi.component.slim_bindings.libraryOverride} at it, restoring the
- * "just works" behavior the JNA-based 1.3.x loader used to provide.
+ * binary to a temp file and points the UniFFI library-override properties at
+ * it, restoring the "just works" behavior the JNA-based 1.3.x loader used to
+ * provide.
+ *
+ * <p>slim-bindings-java 2.0 exposes two UniFFI namespaces — {@code slim_bindings}
+ * for the transport and {@code slim_rpc} for SlimRPC — that are compiled into the
+ * same shared object, so both overrides are pointed at the same extracted file.
  */
 final class NativeLibraryLoader {
 
-    private static final String OVERRIDE_PROPERTY = "uniffi.component.slim_bindings.libraryOverride";
+    private static final String[] OVERRIDE_PROPERTIES = {
+            "uniffi.component.slim_bindings.libraryOverride",
+            "uniffi.component.slim_rpc.libraryOverride",
+    };
 
     private NativeLibraryLoader() {}
 
     static synchronized void ensureExtracted() {
-        if (System.getProperty(OVERRIDE_PROPERTY) != null) {
-            return;
+        String existing = null;
+        for (String property : OVERRIDE_PROPERTIES) {
+            String value = System.getProperty(property);
+            if (value != null) {
+                existing = value;
+            }
         }
+        if (existing == null) {
+            existing = extract();
+        }
+        for (String property : OVERRIDE_PROPERTIES) {
+            if (System.getProperty(property) == null) {
+                System.setProperty(property, existing);
+            }
+        }
+    }
+
+    private static String extract() {
         String resourcePath = platformDir() + "/" + libraryFileName();
         try (InputStream in = NativeLibraryLoader.class.getClassLoader().getResourceAsStream(resourcePath)) {
             if (in == null) {
@@ -37,7 +59,7 @@ final class NativeLibraryLoader {
             Path tempFile = Files.createTempFile("slim_bindings-", suffix());
             tempFile.toFile().deleteOnExit();
             Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-            System.setProperty(OVERRIDE_PROPERTY, tempFile.toAbsolutePath().toString());
+            return tempFile.toAbsolutePath().toString();
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to extract slim-bindings-java native library", e);
         }
