@@ -9,10 +9,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Flow;
 
-import io.agntcy.slim.bindings.Context;
-import io.agntcy.slim.bindings.ResponseSink;
-import io.agntcy.slim.bindings.RpcCode;
-import io.agntcy.slim.bindings.RpcException;
+import io.agntcy.slim.bindings.slimrpc.Context;
+import io.agntcy.slim.bindings.slimrpc.ResponseSink;
+import io.agntcy.slim.bindings.slimrpc.RpcCode;
+import io.agntcy.slim.bindings.slimrpc.RpcException;
 import org.a2aproject.sdk.grpc.A2AServiceSlimrpc;
 import org.a2aproject.sdk.grpc.utils.ProtoUtils;
 import org.a2aproject.sdk.server.ServerCallContext;

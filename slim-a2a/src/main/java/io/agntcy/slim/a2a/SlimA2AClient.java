@@ -4,18 +4,14 @@
 package io.agntcy.slim.a2a;
 
 import java.time.Duration;
-import java.util.Map;
 
-import io.agntcy.slim.bindings.Channel;
-import io.agntcy.slim.bindings.ResponseStreamReader;
-import io.agntcy.slim.bindings.RpcException;
-import io.agntcy.slim.bindings.StreamMessage;
-import io.agntcy.slim.bindings.slimrpc.ClientResponseStream;
+import io.agntcy.slim.bindings.slimrpc.Channel;
+import io.agntcy.slim.bindings.slimrpc.ResponseStreamReader;
+import io.agntcy.slim.bindings.slimrpc.RpcException;
 import org.a2aproject.sdk.grpc.A2AServiceSlimrpc;
 import org.a2aproject.sdk.grpc.utils.ProtoUtils;
 import org.a2aproject.sdk.spec.EventKind;
 import org.a2aproject.sdk.spec.MessageSendParams;
-import org.a2aproject.sdk.spec.StreamingEventKind;
 import org.a2aproject.sdk.spec.Task;
 import org.a2aproject.sdk.spec.TaskIdParams;
 import org.a2aproject.sdk.spec.TaskQueryParams;

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import io.agntcy.slim.a2a.SlimA2AClient;
 import io.agntcy.slim.a2a.SlimHelper;
-import io.agntcy.slim.bindings.Channel;
+import io.agntcy.slim.bindings.slimrpc.Channel;
 import org.a2aproject.sdk.spec.EventKind;
 import org.a2aproject.sdk.spec.Message;
 import org.a2aproject.sdk.spec.MessageSendParams;
@@ -79,7 +79,7 @@ public final class ClientMain {
             // until restarted. Re-enable once that server-side bug is fixed.
             System.out.println("SLIM_A2A_CLIENT_DONE");
         } finally {
-            channel.close(Duration.ofSeconds(5));
+            channel.closeBlocking(Duration.ofSeconds(5));
         }
     }
 }

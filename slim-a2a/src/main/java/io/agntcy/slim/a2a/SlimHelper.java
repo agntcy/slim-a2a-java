@@ -4,12 +4,12 @@
 package io.agntcy.slim.a2a;
 
 import io.agntcy.slim.bindings.App;
-import io.agntcy.slim.bindings.Channel;
 import io.agntcy.slim.bindings.ClientConfig;
 import io.agntcy.slim.bindings.Name;
-import io.agntcy.slim.bindings.Server;
 import io.agntcy.slim.bindings.Service;
 import io.agntcy.slim.bindings.SlimBindings;
+import io.agntcy.slim.bindings.slimrpc.Channel;
+import io.agntcy.slim.bindings.slimrpc.Server;
 
 /**
  * Convenience helpers for bootstrapping SLIM RPC server and client instances.

@@ -38,7 +38,7 @@ slim-a2a-java/
 
 The library depends on:
 
-- `io.agntcy.slim:slim-bindings-java` -- SLIM Java bindings (JNA-based)
+- `io.agntcy.slim:slim-bindings-java` 2.0.x -- SLIM Java bindings (Foreign Function &amp; Memory API based)
 - `org.a2aproject.sdk:a2a-java-sdk-server-common` -- A2A SDK server core
 - `org.a2aproject.sdk:a2a-java-sdk-spec-grpc` -- A2A protobuf types and ProtoUtils mappers
 
@@ -68,13 +68,13 @@ The generated stubs are checked in under `slim-a2a/generated/slimrpc/`. To regen
 task generate
 ```
 
-This requires `protoc-gen-slimrpc-java` on your PATH. Build it from the SLIM repository:
+This requires `protoc-gen-slimrpc-java` 2.0.x on your PATH:
 
 ```bash
-cd /path/to/slim/data-plane
-cargo build --release -p agntcy-protoc-slimrpc-plugin
-# Binary: target/release/protoc-gen-slimrpc-java
+cargo install agntcy-protoc-slimrpc-plugin --version 2.0.0 --locked
 ```
+
+Older plugin versions emit imports from the pre-2.0 package layout and will not compile against `slim-bindings-java` 2.0.
 
 ## Running the Echo Agent Example
 
