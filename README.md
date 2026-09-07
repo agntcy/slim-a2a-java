@@ -1,5 +1,7 @@
 # SLIM A2A Java
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/agntcy/slim-a2a-java/badge)](https://scorecard.dev/viewer/?uri=github.com/agntcy/slim-a2a-java)
+
 A2A (Agent-to-Agent) protocol over [SLIM](https://github.com/agntcy/slim) transport for Java.
 
 This library provides an adapter between the [A2A Java SDK](https://github.com/a2aproject/a2a-java) and SLIM's RPC transport, allowing A2A agents to communicate over the SLIM network.
