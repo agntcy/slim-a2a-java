@@ -21,9 +21,10 @@ slim-a2a-java/
   examples/echo-agent/          # Echo agent example
     src/main/java/
       io/agntcy/slim/a2a/examples/echo/
-        EchoAgentExecutor.java  # Simple echo AgentExecutor
+        EchoAgentExecutor.java  # Echo AgentExecutor (message / streaming task / cancellable task)
         ServerMain.java         # Server entry point
-        ClientMain.java         # Client entry point
+        ClientMain.java         # Client entry point, one demo per A2A call shape
+        A2AEventStream.java     # Decodes a SlimRPC response stream into A2A events
 ```
 
 ## Prerequisites
@@ -101,6 +102,25 @@ In a third terminal:
 ```bash
 task echo-client
 ```
+
+The client runs one demo per A2A call shape, in order:
+
+| Demo | Exercises | What the agent does |
+| --- | --- | --- |
+| `message` | `SendMessage` | Replies with a single message, no task |
+| `stream` | `SendStreamingMessage`, `GetTask` | Runs a task emitting one artifact per word, then completes |
+| `cancel` | `SubscribeToTask`, `CancelTask` | Starts a long task, attaches a second subscriber, then cancels it |
+| `card` | `GetExtendedAgentCard` | Returns the agent card served over SLIM |
+
+Pass `--demo` to run a subset:
+
+```bash
+task echo-client -- -Dexec.args="--demo stream,card"
+```
+
+The agent picks its behaviour from a prefix on the message text -- `stream: <text>`
+runs a task with artifacts, `slow: <seconds>` runs a cancellable long task, and
+anything else gets a plain message reply. See `EchoAgentExecutor`.
 
 ## Architecture
 
