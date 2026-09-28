@@ -1,13 +1,15 @@
 # Copyright AGNTCY Contributors (https://github.com/agntcy)
 # SPDX-License-Identifier: Apache-2.0
 
-name: CI
+name: CodeQL
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '30 3 * * 1'
 
 permissions:
   contents: read
@@ -17,10 +19,17 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build:
+  analyze:
+    name: Analyze (java-kotlin)
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup Rust
         uses: ./.github/actions/setup-rust
@@ -37,11 +46,19 @@ jobs:
         with:
           github_token: ${{ github.token }}
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
+        with:
+          languages: java-kotlin
+          build-mode: manual
+
       - name: Generate SlimRPC stubs
         run: task generate
 
       - name: Build
         run: task build
 
-      - name: Test
-        run: task test
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
+        with:
+          category: "/language:java-kotlin"
