@@ -44,10 +44,10 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
 
-        <slim.bindings.version>2.0.0</slim.bindings.version>
-        <a2a.java.sdk.version>1.1.0.Final</a2a.java.sdk.version>
-        <protobuf.version>4.33.2</protobuf.version>
-        <jna.version>5.14.0</jna.version>
+        <slim.bindings.version>2.1.2</slim.bindings.version>
+        <a2a.java.sdk.version>1.4.0.Final</a2a.java.sdk.version>
+        <protobuf.version>4.36.2</protobuf.version>
+        <jna.version>5.19.1</jna.version>
     </properties>
 
     <dependencyManagement>
@@ -96,7 +96,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
+                    <version>3.16.0</version>
                     <configuration>
                         <source>${maven.compiler.source}</source>
                         <target>${maven.compiler.target}</target>
@@ -108,12 +108,12 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.6.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.6.4</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -122,7 +122,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.5.0</version>
+                <version>1.8.0</version>
                 <executions>
                     <execution>
                         <id>flatten</id>
@@ -156,7 +156,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.2.4</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
