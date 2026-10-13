@@ -124,6 +124,50 @@ The agent picks its behaviour from a prefix on the message text -- `stream: <tex
 runs a task with artifacts, `slow: <seconds>` runs a cancellable long task, and
 anything else gets a plain message reply. See `EchoAgentExecutor`.
 
+## Identity and Node Connections
+
+`SlimHelper.createServer(instance, org, ns, secret, serverAddr)` and the matching
+`createChannel` overload are shortcuts for a shared-secret identity over an insecure
+connection. With a shared secret, anyone holding the secret can claim any SLIM name,
+so production deployments should use per-agent identities.
+
+The general overloads take the identity as an `IdentityProviderConfig` /
+`IdentityVerifierConfig` pair (shared secret, JWT, static JWT or SPIRE) and the node
+connection as a `ClientConfig`:
+
+```java
+Name local = new Name("agntcy", "demo", "server");
+
+// Sign our tokens with an Ed25519 key; kid = sub = did:key works for a did:key mesh.
+IdentityProviderConfig provider = new IdentityProviderConfig.Jwt(new ClientJwtAuth(
+        new JwtKeyType.Encoding(new JwtKeyConfig(JwtAlgorithm.ED_DSA, JwtKeyFormat.PEM,
+                new JwtKeyData.File("/etc/agent/ed25519.pem"))),
+        List.of("slim-a2a"), "my-issuer", "did:key:z6Mk...", Duration.ofHours(1)));
+
+// Accept peers whose public keys are in a JWKS file (acts as a trust allowlist).
+IdentityVerifierConfig verifier = new IdentityVerifierConfig.Jwt(new JwtAuth(
+        new JwtKeyType.Decoding(new JwtKeyConfig(JwtAlgorithm.ED_DSA, JwtKeyFormat.JWKS,
+                new JwtKeyData.File("/etc/agent/trusted.jwks.json"))),
+        List.of("slim-a2a"), "my-issuer", null, Duration.ofHours(1)));
+
+// TLS to the node (system CA roots) plus a bearer token read from a file.
+ClientConfig node = SlimBindings.newSecureClientConfig("https://slim.example.com:443");
+node.setAuth(new ClientAuthenticationConfig.StaticJwt(
+        new StaticJwtAuth("/etc/agent/node-token.jwt", Duration.ofMinutes(5))));
+
+Server server = SlimHelper.createServer(local, provider, verifier, node);
+Channel channel = SlimHelper.createChannel(
+        new Name("agntcy", "demo", "client"), local, provider, verifier, node);
+```
+
+Every member of a SLIM session needs a compatible identity type, so the server and
+its clients must agree on the provider/verifier kind. `SlimHelper.sharedSecretProvider`
+and `sharedSecretVerifier` build the shared-secret configs used by the shortcut overloads.
+
+With slim-bindings-java 2.0, the SlimRPC handler context does not expose the caller's
+verified identity, so `SlimA2AHandler` still reports an anonymous user to the A2A
+`RequestHandler`.
+
 ## Architecture
 
 The library follows the same adapter pattern as
