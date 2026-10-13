@@ -71,8 +71,13 @@ jobs:
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
+          # credentialScope=id: the 'central' server id is Maven's built-in id for
+          # Maven Central, so newer Maven scopes its credentials to
+          # repo.maven.apache.org and drops them when deploying to the
+          # ossrh-staging-api host, which fails the upload with HTTP 401.
           mvn deploy -Drevision="${{ steps.v.outputs.version }}" -DskipTests \
-            -DaltDeploymentRepository=central::default::https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/
+            -Dmaven.repository.credentialScope=id \
+            -DaltDeploymentRepository=central::https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/
 
       - name: Transfer staged deployment to Central Portal
         env:
