@@ -41,7 +41,7 @@ slim-a2a-java/
 
 The library depends on:
 
-- `io.agntcy.slim:slim-bindings-java` 2.0.x -- SLIM Java bindings (Foreign Function &amp; Memory API based)
+- `io.agntcy.slim:slim-bindings-java` 3.3.x -- SLIM Java bindings (Foreign Function &amp; Memory API based)
 - `org.a2aproject.sdk:a2a-java-sdk-server-common` -- A2A SDK server core
 - `org.a2aproject.sdk:a2a-java-sdk-spec-grpc` -- A2A protobuf types and ProtoUtils mappers
 
@@ -71,13 +71,13 @@ The generated stubs are checked in under `slim-a2a/generated/slimrpc/`. To regen
 task generate
 ```
 
-This requires `protoc-gen-slimrpc-java` 2.0.x on your PATH:
+This requires `protoc-gen-slimrpc-java` 3.0.x on your PATH:
 
 ```bash
-cargo install agntcy-protoc-slimrpc-plugin --version 2.0.0 --locked
+cargo install agntcy-protoc-slimrpc-plugin --version 3.0.0 --locked
 ```
 
-Older plugin versions emit imports from the pre-2.0 package layout and will not compile against `slim-bindings-java` 2.0.
+Plugin versions older than 2.0 emit imports from the pre-2.0 package layout and will not compile against `slim-bindings-java` 3.x.
 
 ## Running the Echo Agent Example
 
@@ -164,9 +164,28 @@ Every member of a SLIM session needs a compatible identity type, so the server a
 its clients must agree on the provider/verifier kind. `SlimHelper.sharedSecretProvider`
 and `sharedSecretVerifier` build the shared-secret configs used by the shortcut overloads.
 
-With slim-bindings-java 2.0, the SlimRPC handler context does not expose the caller's
-verified identity, so `SlimA2AHandler` still reports an anonymous user to the A2A
-`RequestHandler`.
+### Caller identity
+
+`SlimA2AHandler` passes the caller's verified SLIM identity to the A2A `RequestHandler`
+as the `ServerCallContext` user. The identity comes from the MLS session token
+(`Context.peerSubject()` / `peerIssuer()`), never from request metadata. When the
+token has a subject, the user is a `SlimUser`. Otherwise the user is anonymous and
+unauthenticated:
+
+```java
+@Override
+public void execute(RequestContext context, AgentEmitter emitter) {
+    User user = context.getCallContext().getUser();
+    if (user instanceof SlimUser caller) {
+        String subject = caller.getSubject(); // token `sub`, also user.getUsername()
+        String issuer = caller.getIssuer();   // token `iss`, or null
+    }
+}
+```
+
+`getAttribute("sub")` and `getAttribute("iss")` return the same values. In group
+sessions the subject is that of the MLS sender of the request. With a shared secret,
+the subject is self-asserted: anyone who holds the secret can claim any name.
 
 ## Architecture
 

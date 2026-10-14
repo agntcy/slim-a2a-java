@@ -36,7 +36,11 @@ public final class EchoAgentExecutor implements AgentExecutor {
     @Override
     public void execute(RequestContext context, AgentEmitter emitter) throws A2AError {
         String userInput = context.getUserInput();
-        System.out.println("[EchoAgent] request contextId=" + context.getContextId()
+        var caller = context.getCallContext() != null ? context.getCallContext().getUser() : null;
+        System.out.println("[EchoAgent] request caller="
+                + (caller != null ? caller.getUsername() : "unknown")
+                + " authenticated=" + (caller != null && caller.isAuthenticated())
+                + " contextId=" + context.getContextId()
                 + " taskId=" + emitter.getTaskId() + " userText=" + userInput);
 
         if (userInput.startsWith(STREAM_PREFIX)) {

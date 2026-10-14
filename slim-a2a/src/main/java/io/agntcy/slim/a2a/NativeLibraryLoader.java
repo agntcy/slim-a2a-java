@@ -18,7 +18,7 @@ import java.nio.file.StandardCopyOption;
  * it, restoring the "just works" behavior the JNA-based 1.3.x loader used to
  * provide.
  *
- * <p>slim-bindings-java 2.0 exposes two UniFFI namespaces — {@code slim_bindings}
+ * <p>slim-bindings-java 2.0 and later expose two UniFFI namespaces — {@code slim_bindings}
  * for the transport and {@code slim_rpc} for SlimRPC — that are compiled into the
  * same shared object, so both overrides are pointed at the same extracted file.
  */
