@@ -10,6 +10,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.Flow;
 
 import io.agntcy.slim.bindings.slimrpc.Context;
+import io.agntcy.slim.bindings.slimrpc.ContextInterface;
 import io.agntcy.slim.bindings.slimrpc.ResponseSink;
 import io.agntcy.slim.bindings.slimrpc.RpcCode;
 import io.agntcy.slim.bindings.slimrpc.RpcException;
@@ -24,6 +25,10 @@ import org.a2aproject.sdk.spec.StreamingEventKind;
 /**
  * Adapts a {@link RequestHandler} to the generated {@link A2AServiceSlimrpc.A2AServiceServer}
  * contract, bridging A2A SDK domain types and protobuf wire types via {@link ProtoUtils}.
+ *
+ * <p>Each request's {@link ServerCallContext} user is the caller's verified SLIM
+ * identity ({@link SlimUser}) when the session token carries a subject, and an
+ * unauthenticated anonymous user otherwise.
  */
 public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer {
 
@@ -45,7 +50,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var params = ProtoUtils.FromProto.messageSendParams(request);
-                var result = requestHandler.onMessageSend(params, newCallContext());
+                var result = requestHandler.onMessageSend(params, newCallContext(context));
                 return ProtoUtils.ToProto.taskOrMessage(result);
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -60,7 +65,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             try {
                 var params = ProtoUtils.FromProto.messageSendParams(request);
                 Flow.Publisher<StreamingEventKind> publisher =
-                        requestHandler.onMessageSendStream(params, newCallContext());
+                        requestHandler.onMessageSendStream(params, newCallContext(context));
                 streamToSink(publisher, sink);
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -74,7 +79,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var params = ProtoUtils.FromProto.taskQueryParams(request);
-                var task = requestHandler.onGetTask(params, newCallContext());
+                var task = requestHandler.onGetTask(params, newCallContext(context));
                 return ProtoUtils.ToProto.task(task);
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -88,7 +93,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var params = ProtoUtils.FromProto.listTasksParams(request);
-                var result = requestHandler.onListTasks(params, newCallContext());
+                var result = requestHandler.onListTasks(params, newCallContext(context));
                 return ProtoUtils.ToProto.listTasksResult(result);
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -102,7 +107,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var params = ProtoUtils.FromProto.cancelTaskParams(request);
-                var task = requestHandler.onCancelTask(params, newCallContext());
+                var task = requestHandler.onCancelTask(params, newCallContext(context));
                 return ProtoUtils.ToProto.task(task);
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -117,7 +122,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
             try {
                 var params = ProtoUtils.FromProto.taskIdParams(request);
                 Flow.Publisher<StreamingEventKind> publisher =
-                        requestHandler.onSubscribeToTask(params, newCallContext());
+                        requestHandler.onSubscribeToTask(params, newCallContext(context));
                 streamToSink(publisher, sink);
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -131,7 +136,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var params = ProtoUtils.FromProto.createTaskPushNotificationConfig(request);
-                var result = requestHandler.onCreateTaskPushNotificationConfig(params, newCallContext());
+                var result = requestHandler.onCreateTaskPushNotificationConfig(params, newCallContext(context));
                 return ProtoUtils.ToProto.taskPushNotificationConfig(result);
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -145,7 +150,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var params = ProtoUtils.FromProto.getTaskPushNotificationConfigParams(request);
-                var result = requestHandler.onGetTaskPushNotificationConfig(params, newCallContext());
+                var result = requestHandler.onGetTaskPushNotificationConfig(params, newCallContext(context));
                 return ProtoUtils.ToProto.taskPushNotificationConfig(result);
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -159,7 +164,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var params = ProtoUtils.FromProto.listTaskPushNotificationConfigsParams(request);
-                var result = requestHandler.onListTaskPushNotificationConfigs(params, newCallContext());
+                var result = requestHandler.onListTaskPushNotificationConfigs(params, newCallContext(context));
                 return ProtoUtils.ToProto.listTaskPushNotificationConfigsResponse(result);
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -179,7 +184,7 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var params = ProtoUtils.FromProto.deleteTaskPushNotificationConfigParams(request);
-                requestHandler.onDeleteTaskPushNotificationConfig(params, newCallContext());
+                requestHandler.onDeleteTaskPushNotificationConfig(params, newCallContext(context));
                 return com.google.protobuf.Empty.getDefaultInstance();
             } catch (A2AError e) {
                 throw new CompletionException(A2ARpcErrorMapping.toRpc(e));
@@ -187,8 +192,30 @@ public final class SlimA2AHandler implements A2AServiceSlimrpc.A2AServiceServer 
         });
     }
 
-    private ServerCallContext newCallContext() {
-        return new ServerCallContext(ANONYMOUS_USER, Map.of(), Collections.emptySet());
+    /**
+     * Raw SlimRPC metadata (routing keys, {@code slim-peer-subject},
+     * {@code slim-payload-sig}, ...) is deliberately not copied into the call
+     * context's state or requested extensions.
+     */
+    static ServerCallContext newCallContext(ContextInterface context) {
+        return new ServerCallContext(callerOf(context), Map.of(), Collections.emptySet());
+    }
+
+    /**
+     * The caller's verified SLIM identity, taken only from the MLS session token
+     * ({@link ContextInterface#peerSubject()} / {@link ContextInterface#peerIssuer()}),
+     * never from caller-supplied metadata. Falls back to an anonymous user when the
+     * session carries no subject.
+     */
+    static User callerOf(ContextInterface context) {
+        if (context == null) {
+            return ANONYMOUS_USER;
+        }
+        String subject = context.peerSubject();
+        if (subject == null || subject.isBlank()) {
+            return ANONYMOUS_USER;
+        }
+        return new SlimUser(subject, context.peerIssuer());
     }
 
     /**
